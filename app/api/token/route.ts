@@ -1,11 +1,41 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 import { CHATU_CONFIG } from '@/lib/gemini/config';
+import fs from 'fs';
+import path from 'path';
 
 export const dynamic = 'force-dynamic';
 
+function getApiKey(): string | undefined {
+  if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim().length > 0) {
+    return process.env.GEMINI_API_KEY.trim();
+  }
+
+  // Fallback to reading .env.local or .env directly
+  const candidates = ['.env.local', '.env'];
+  for (const file of candidates) {
+    try {
+      const fullPath = path.join(/*turbopackIgnore: true*/ process.cwd(), file);
+      if (fs.existsSync(fullPath)) {
+        const content = fs.readFileSync(fullPath, 'utf8');
+        const match = content.match(/GEMINI_API_KEY\s*=\s*([^\r\n#]+)/);
+        if (match && match[1]) {
+          const key = match[1].trim().replace(/^["']|["']$/g, '');
+          if (key.length > 0) {
+            return key;
+          }
+        }
+      }
+    } catch {
+      // Continue to next candidate
+    }
+  }
+
+  return undefined;
+}
+
 export async function POST() {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = getApiKey();
 
   if (!apiKey) {
     return NextResponse.json(
@@ -30,8 +60,8 @@ export async function POST() {
     // Create a secure short-lived ephemeral token strictly for the Live session
     const tokenResult = await ai.authTokens.create({
       config: {
-        uses: 1,
-        expireTime: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+        uses: 50,
+        expireTime: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
         liveConnectConstraints: {
           model: model,
         },
