@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+:root {
+  --background: #05070a;
+  --foreground: #f1f5f9;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  touch-action: manipulation;
+}
+
+/* Atmospheric subtle radial background */
+.nova-backdrop {
+  background: radial-gradient(
+    circle at 50% 45%,
+    #0c121e 0%,
+    #070a10 50%,
+    #030508 100%
+  );
+}
+
+/* Subtle focus styles for accessibility */
+button:focus-visible {
+  outline: 2px solid rgba(34, 211, 238, 0.6);
+  outline-offset: 3px;
+}
